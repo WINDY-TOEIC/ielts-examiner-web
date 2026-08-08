@@ -16,7 +16,7 @@ Viết đánh giá khách quan, VIẾT CHI TIẾT DÀI HƠN về:
 - Grammatical Range and Accuracy: ngữ pháp, subject-verb agreement, thì, câu đơn/phức, đưa ví dụ.
 
 PHẦN 2: HƯỚNG DẪN CHỈNH SỬA CHI TIẾT TỪNG CÂU HỎI
-Trích xuất và sửa lỗi chi tiết từng câu hỏi:
+Trích xuất và sửa lỗi chi tiết từng câu hỏi (BẮT BUỘC nhận xét toàn bộ các câu trả lời, TUYỆT ĐỐI KHÔNG được omit/bỏ sót bất kỳ câu nào):
 - CÂU HỎI: Ghi lại câu hỏi.
 - CÂU TRẢ LỜI GỐC: Ghi lại câu trả lời gốc. TUYỆT ĐỐI BẮT BUỘC đặt từ sai trong ~~ ~~ và từ sửa lại trong ** ** NGAY CẠNH NHAU (Ví dụ: "I ~~goes~~ **go** to school"). Nếu thừa từ thì chỉ gạch bỏ.
 - GIẢI THÍCH: BẮT BUỘC ghi kèm mốc thời gian (phút:giây) xảy ra lỗi đó ở ngay đầu. Sau đó giải thích chi tiết bằng tiếng Việt lý do tại sao sai. Mỗi ý giải thích phải xuống dòng rõ ràng, KHÔNG dùng ký tự liệt kê ở đầu.
