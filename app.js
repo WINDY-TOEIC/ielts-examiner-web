@@ -363,8 +363,50 @@ async function callGeminiAPI(apiKey, model, audioBase64, mimeType, systemPromptC
     }
 }
 
+// --- THÊM HÀM QUÉT MODEL MỚI NHẤT ---
+async function getLatestFreeModel(apiKey, defaultModel) {
+    try {
+        let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+        if (!res.ok) return defaultModel;
+        let data = await res.json();
+        let bestModel = defaultModel;
+        let maxVer = 0;
+        
+        // Parse số phiên bản của model mặc định (VD: lấy số 3.5 từ gemini-3.5-flash)
+        let defaultMatch = defaultModel.match(/gemini-(\d+(\.\d+)?)-flash$/i);
+        if (defaultMatch) maxVer = parseFloat(defaultMatch[1]);
+
+        // Quét tất cả model để tìm số phiên bản cao nhất
+        if (data.models) {
+            data.models.forEach(m => {
+                let name = m.name.replace("models/", "");
+                let match = name.match(/gemini-(\d+(\.\d+)?)-flash$/i);
+                if (match) {
+                    let ver = parseFloat(match[1]);
+                    if (ver > maxVer) { maxVer = ver; bestModel = name; }
+                }
+            });
+        }
+        return bestModel;
+    } catch (e) {
+        return defaultModel;
+    }
+}
+
 async function gradeWithFallback(apiKey, audioBase64, mimeType, systemPromptConfig, responseSchemaConfig, stepName, targetModel, sName) {
-    let backupModel = (targetModel === "gemini-3.5-flash") ? "gemini-3-flash-preview" : "gemini-3.5-flash";
+    let actualTargetModel = targetModel;
+    
+    // Nếu target đang là 3.5, chủ động gọi lên Google kiểm tra bản mới nhất
+    if (targetModel === "gemini-3.5-flash") {
+        addLog(`[${sName}] 🔍 Đang quét tìm Model Flash Free mới nhất từ Google...`, "info");
+        actualTargetModel = await getLatestFreeModel(apiKey, "gemini-3.5-flash");
+        if (actualTargetModel !== "gemini-3.5-flash") {
+            addLog(`[${sName}] 🎯 Đã tìm thấy và quyết định sử dụng Model mới: ${actualTargetModel}`, "info");
+        }
+    }
+
+    // Lên phương án Backup: Nếu tìm được bản mới (VD 3.6), dự phòng sẽ là 3.5. Ngược lại dự phòng là bản preview.
+    let backupModel = (actualTargetModel !== "gemini-3.5-flash") ? "gemini-3.5-flash" : "gemini-3-flash-preview";
     let isFirstCall = true;
 
     async function tryModelWithRetries(modelName, maxRetries) {
@@ -390,7 +432,7 @@ async function gradeWithFallback(apiKey, audioBase64, mimeType, systemPromptConf
         throw new Error("MODEL_FAILED_TIMEOUT"); // Xong 3 lần mà vẫn lỗi thì ném ra ngoài để đổi Model
     }
 
-    try { return await tryModelWithRetries(targetModel, 3); } 
+    try { return await tryModelWithRetries(actualTargetModel, 3); } 
     catch (e1) {
         if (e1.isKeyError) throw e1; // NGẮT MẠCH: Không cho nhảy sang model Dự phòng
         if (e1.message === "PAID_API_TRIGGER") throw e1;
